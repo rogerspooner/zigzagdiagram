@@ -1,0 +1,13 @@
+<svg width="900" height="400" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    /* CSS styling for the lines */
+    .line1 { stroke: red; }
+    .line2 { stroke: green; }
+    .line3 { stroke: blue; }
+  </style>
+  
+  <!-- Three separate straight lines -->
+  <line class="line1" x1="100" y1="100" x2="300" y2="100" stroke-width="2" />
+  <line class="line2" x1="100" y1="200" x2="300" y2="200" stroke-width="2" />
+  <line class="line3" x1="100" y1="300" x2="300" y2="300" stroke-width="2" />
+</svg>
