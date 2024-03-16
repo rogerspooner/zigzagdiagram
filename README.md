@@ -8,4 +8,6 @@ This helps to see the time available for connections, and alternatives.
 
 I drew it to help me visualise a day I am planning with an Interrail pass. I need to get from one of two starting points, via a special railway section, to a destination the next day (within the Interrail rules). How many chances do I get for mistakes?
 
+A lot of this was written with the help of ChatGPT.
+
 (c) Roger Spooner 2024
