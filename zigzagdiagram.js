@@ -74,7 +74,7 @@ async function loadAndRenderZigZag(stationsFileElement, timeTableFileElement) {
     console.log(timetable);
     let context = {};
     context.stationYs = {};
-    context.xscale = 30;
+    context.xscale = 40;
     context.yscale = 0.5;
     stations.forEach( (row) => context.stationYs[row['Name']] = row['Y'] );
     console.log(context);

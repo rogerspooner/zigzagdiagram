@@ -1,12 +1,16 @@
-﻿From,To direct,Depart,Arrive,DepHrs,ArrHrs
+﻿From,To direct,Depart decimal minnutes,Arrive decimal,DepHrs,ArrHrs
 Bologna,Milan,0456,0705,4.933,7.083
 Bologna,Milan,0506,0712,5.100,7.200
 Bologna,Milan,0731,0850,7.517,8.833
 Bologna,Milan,0731,0850,7.517,8.833
+Bologna,Milan,0836,0950,8.600,9.833
+Bologna,Milan,0856,1000,8.933,10.000
+Bologna,Milan,0926,1035,9.433,10.583
 Milan,Tirano,0720,0952,7.333,9.867
 Milan,Tirano,0820,1052,8.333,10.867
 Milan,Tirano,0920,1205,9.333,12.083
 Milan,Tirano,1020,1252,10.333,12.867
+Milan,Tirano,1220,1452,12.333,14.867
 Tirano,St Moritz,1006,1235,10.100,12.583
 Tirano,St Moritz,1100,1311,11.000,13.183
 Tirano,St Moritz,1141,1411,11.683,14.183
@@ -28,6 +32,9 @@ Chur,Zurich,1708,1822,17.133,18.367
 Chur,Zurich,1716,1848,17.267,18.800
 Chur,Zurich,1738,1853,17.633,18.883
 Chur,Zurich,1808,1922,18.133,19.367
+Chur,Zurich,1816,1948,18.267,19.800
+Chur,Zurich,1838,1953,18.633,19.883
+Chur,Zurich,1908,2022,19.133,20.367
 Zurich,Berlin,1959,3111,19.983,31.183
 Zurich,Basel,1759,1853,17.983,18.883
 Zurich,Basel,1559,1653,15.983,16.883
@@ -38,3 +45,6 @@ Turin,Milan,0700,0750,7.000,7.833
 Turin,Milan,0710,0800,7.167,8.000
 Turin,Milan,0810,0902,8.167,9.033
 Turin,Milan,1010,1102,10.167,11.033
+Chur,Basel,1508,1728,15.133,17.467
+Chur,Basel,1608,1828,16.133,18.467
+Chur,Basel,1808,2028,18.133,20.467
