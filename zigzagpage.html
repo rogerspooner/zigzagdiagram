@@ -14,12 +14,15 @@
     <button onclick="loadAndRenderZigZag('stationsFileInput','timetableFileInput')">Load CSV files</button>
 
 <hr>
-<svg width="900" height="400">
+<svg width="960" height="460" id="zigzag-svg">
     <style>
         /* CSS styling for the lines */
-        .line1 { stroke: red; }
-        .line2 { stroke: green; }
-        .line3 { stroke: blue; }
+        .trainZigZag { stroke: green; stroke-width: 2; }
+        .stationLine { stroke: lightblue; stroke-width: 2; }
+        .stationLabel { font-family: Calibri, 'Trebuchet MS', sans-serif;  font-size: 18px; fill: cornflowerblue;}
+        .hourLine { stroke: lightblue; stroke-width: 2; }
+        .thinHourLine { stroke: #cceeff; stroke-width: 1; }
+        .hourLabel { font-family: Calibri, 'Trebuchet MS', sans-serif;  font-size: 18px; fill: cornflowerblue;}
       </style>    
   <!-- Three separate straight lines -->
   <line x1="100" y1="100" x2="300" y2="100" stroke="black" stroke-width="2" />

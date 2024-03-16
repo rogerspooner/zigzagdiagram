@@ -13,7 +13,6 @@ function readFileAsArrayBuffer(file) {
         reader.onerror = function(event) {
             reject(event.target.error);
         };
-        console.log("Reading "+file.name);
         reader.readAsArrayBuffer(file);
     });
 }
@@ -34,9 +33,30 @@ function parseCSV(csvString) {
         
         data.push(obj); // Push object to data array
     }
-    console.log("returning from parseCSV: "+data.toString());
     return data;
 }
+
+function addLineToSvg(context, x1,y1,x2,y2, className) {
+    const svgContainer = context.svgContainer;
+    const line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+    line.setAttribute('x1', x1 * context.xscale);
+    line.setAttribute('y1', y1 * context.yscale);
+    line.setAttribute('x2', x2 * context.xscale);
+    line.setAttribute('y2', y2 * context.yscale);
+    line.setAttribute('class', className);
+    svgContainer.appendChild(line);
+}
+
+function addTextToSvg(context, x, y, label, className) {
+    const svgContainer = context.svgContainer;
+    const text = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+    text.setAttribute('x', x * context.xscale);
+    text.setAttribute('y', y * context.yscale);
+    text.setAttribute('class', className);
+    text.textContent = label;
+    svgContainer.appendChild(text);
+}
+
 
 async function loadAndRenderZigZag(stationsFileElement, timeTableFileElement) {
     const stationsFileInput = document.getElementById(stationsFileElement);
@@ -49,10 +69,32 @@ async function loadAndRenderZigZag(stationsFileElement, timeTableFileElement) {
         readFileAsArrayBuffer(timeTableFile)
     ]);
 
-    console.log("Stations:");
-    stations = parseCSV(stationsData);
-    console.log(stations);
-    console.log("Timetable");
-    timetable = parseCSV(timetableData);
+    stations = parseCSV(stationsData.trim());
+    timetable = parseCSV(timetableData.trim());
     console.log(timetable);
+    let context = {};
+    context.stationYs = {};
+    context.xscale = 30;
+    context.yscale = 0.5;
+    stations.forEach( (row) => context.stationYs[row['Name']] = row['Y'] );
+    console.log(context);
+    context.svgContainer = document.getElementById('zigzag-svg');
+
+    stations.forEach( (row) => addLineToSvg( context, 0, context.stationYs[row['Name']], 
+        32, context.stationYs[row['Name']], 'stationLine'));
+    stations.forEach( (row) => addTextToSvg( context, 0, context.stationYs[row['Name']] - 8, 
+        row['Name'], 'stationLabel'));
+    for (let hr = 0; hr  <= 32; hr += 1 ) {
+            addLineToSvg(context, hr, 0, hr, 900, 'thinHourLine');
+    }
+    for (let hr = 0; hr  <= 32; hr += 3 ) {
+        addLineToSvg(context, hr, 0, hr, 900, 'hourLine');
+        addTextToSvg(context, hr+0.1, 30, hr%24+'h', 'hourLabel');
+    }
+
+    timetable.forEach( (row) => addLineToSvg(context, 
+        row['DepHrs'], context.stationYs[row['From']],
+        row['ArrHrs'], context.stationYs[row['To direct']],
+        "trainZigZag"  ))
+
 }
