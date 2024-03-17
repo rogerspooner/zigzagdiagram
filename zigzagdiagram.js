@@ -57,21 +57,7 @@ function addTextToSvg(context, x, y, label, className) {
     svgContainer.appendChild(text);
 }
 
-
-async function loadAndRenderZigZag(stationsFileElement, timeTableFileElement) {
-    const stationsFileInput = document.getElementById(stationsFileElement);
-    const stationsFile = stationsFileInput.files[0];
-    const timeTableFileInput = document.getElementById(timeTableFileElement);
-    const timeTableFile = timeTableFileInput.files[0];
-
-    let [stationsData, timetableData] = await Promise.all([
-        readFileAsArrayBuffer(stationsFile),
-        readFileAsArrayBuffer(timeTableFile)
-    ]);
-
-    stations = parseCSV(stationsData.trim());
-    timetable = parseCSV(timetableData.trim());
-    console.log(timetable);
+function renderZigZag(timetable, stations) {
     let context = {};
     context.stationYs = {};
     context.xscale = 40;
@@ -97,4 +83,94 @@ async function loadAndRenderZigZag(stationsFileElement, timeTableFileElement) {
         row['ArrHrs'], context.stationYs[row['To direct']],
         "trainZigZag"  ))
 
+}
+
+async function loadAndRenderZigZag(stationsFileElement, timeTableFileElement) {
+    const stationsFileInput = document.getElementById(stationsFileElement);
+    const stationsFile = stationsFileInput.files[0];
+    const timeTableFileInput = document.getElementById(timeTableFileElement);
+    const timeTableFile = timeTableFileInput.files[0];
+
+    let [stationsData, timetableData] = await Promise.all([
+        readFileAsArrayBuffer(stationsFile),
+        readFileAsArrayBuffer(timeTableFile)
+    ]);
+
+    stations = parseCSV(stationsData.trim());
+    timetable = parseCSV(timetableData.trim());
+    renderZigZag(timetable, stations);
+}
+
+function parseTimetableTable(contentParent) {
+    let timetable = {};
+    let stations = {};
+    // validate that we have a table
+    let tb = contentParent.querySelector('table');
+    if (null == tb)
+    { 
+        window.alert("Please paste a table (as HTML)");
+        return [null, null];
+    }
+    // validate table column names in first row (assuming it's <td> not <th> )
+    let toprow = tb.querySelector('tr');
+    let headings = [];
+    toprow.querySelectorAll('td').forEach( (el) => headings.push(el.innerText) );
+    console.log(headings);
+
+    // check if times are in decimal minutes e.g. 2359 or time format e.g. 23:59
+    // import rows, creating stations in the order we find them. 
+    return [timetable, stations];
+}
+
+function gotClipboardString(str) {
+    contentParent.innerHTML = str;
+    // parse HTML table in to stations, timetable objects
+    let timetable, stations;
+    [timetable, stations] = parseTimetableTable(contentParent);
+    if (undefined != timetable) 
+        renderZigZag(timetable, stations);
+
+}
+
+async function clipboardClickHandler(evt) {
+    if (! navigator.clipboard.read)
+    {
+      window.alert("Clipboard features not available in this browser.\nTry Chrome.");
+      return -1;
+    }
+    let contentParent = document.getElementById("contentParent");
+    contentParent.innerText = "Please approve clipboard access";
+    let cbItems = await navigator.clipboard.read();
+    gItems = cbItems;
+    for (const cbItem of cbItems) {
+        if (! cbItem.types.includes('text/html'))
+        {   contentParent.innerText = "Only paste text/html of a table from a spreadsheet";
+            return -1;
+        }
+        console.log(cbItem);
+        let blob = await cbItem.getType('text/html');
+        console.log(blob);
+        let arrbuff = await blob.arrayBuffer();
+        console.log(arrbuff);
+        let decoder = new TextDecoder('utf-8');
+        let str = decoder.decode(arrbuff);
+        gotClipboardString(str);
+    }
+}
+
+function clipboardPasteEventHandler(evt)
+{ 
+    console.log(evt);
+    console.log(evt.clipboardData);
+    console.log(evt.clipboardData.items);
+    gcbData = evt.clipboardData;
+    for (let item of evt.clipboardData.items)
+    {
+        if (item.type == 'text/html')
+        {
+            let str = item.getAsString( (str) => gotClipboardString(str) );
+        }
+        console.log(item);
+    }
+    return 0;
 }

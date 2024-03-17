@@ -6,12 +6,17 @@
 <script src="zigzagdiagram.js" ></script>
 <title>Train timetable</title>
 </head>
-<body>
+<body onpaste="clipboardPasteEventHandler(event);">
 <h1>Train Timetable</h1>
-
+<div id="fileImports" style="display:none">
     Stations: <input type="file" id="stationsFileInput" /> <br>
     Timetable: <input type="file" id="timetableFileInput" /> <br>
-    <button onclick="loadAndRenderZigZag('stationsFileInput','timetableFileInput')">Load CSV files</button>
+    <button onclick="loadAndRenderZigZag('stationsFileInput','timetableFileInput')">Load CSV files</button> <br>
+</div>
+<div id="clipboardPaste" style="display:inline-block;">
+    <button onclick="clipboardClickHandler(event)">Paste timetable from spreadsheet</button> <br>
+    <div id="contentParent" style="border: solid #aaaaaa; margin:4px;">(paste here)</div>
+</div>
 
 <hr>
 <svg width="1280" height="460" id="zigzag-svg">
