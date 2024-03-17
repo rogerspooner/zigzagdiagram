@@ -57,35 +57,50 @@ function addTextToSvg(context, x, y, label, className) {
     svgContainer.appendChild(text);
 }
 
-function renderZigZag(timetable, stations) {
+function renderZigZag(timetable) {
     let context = {};
-    context.stationYs = {};
-    context.xscale = 40;
-    context.yscale = 0.5;
-    stations.forEach( (row) => context.stationYs[row['Name']] = row['Y'] );
-    console.log(context);
+    context.xscale = 25;
+    context.yscale = 50;
+    // Create stations
+    let stations = {};
+    timetable.forEach( (row) => {
+        if (!Object.hasOwn(stations,row['from']))  
+        {   stations[row['from']] = Object.keys(stations).length+1;
+        }
+        if (!Object.hasOwn(stations,row['to']))  
+        {   stations[row['to']] = Object.keys(stations).length+1;
+        }
+    } );
     context.svgContainer = document.getElementById('zigzag-svg');
-
-    stations.forEach( (row) => addLineToSvg( context, 0, context.stationYs[row['Name']], 
-        32, context.stationYs[row['Name']], 'stationLine'));
-    stations.forEach( (row) => addTextToSvg( context, 0, context.stationYs[row['Name']] - 8, 
-        row['Name'], 'stationLabel'));
     for (let hr = 0; hr  <= 32; hr += 1 ) {
-            addLineToSvg(context, hr, 0, hr, 900, 'thinHourLine');
+        addLineToSvg(context, hr, 0, hr, 900, 'thinHourLine');
     }
     for (let hr = 0; hr  <= 32; hr += 3 ) {
         addLineToSvg(context, hr, 0, hr, 900, 'hourLine');
-        addTextToSvg(context, hr+0.1, 30, hr%24+'h', 'hourLabel');
+        addTextToSvg(context, hr+0.1, 0.3, hr%24+'h', 'hourLabel');
     }
 
-    timetable.forEach( (row) => addLineToSvg(context, 
-        row['DepHrs'], context.stationYs[row['From']],
-        row['ArrHrs'], context.stationYs[row['To direct']],
-        "trainZigZag"  ))
+    Object.keys(stations).forEach( (name) => { addLineToSvg( context, 0, stations[name], 
+        32, stations[name], 'stationLine') } );
+    Object.keys(stations).forEach( (name) => addTextToSvg( context, 0, stations[name], 
+        name, 'stationLabel'));
+    Object.keys(stations).forEach( (name) => addTextToSvg( context, 27, stations[name], 
+            name, 'smallLabel'));
+    
+    timetable.forEach( (row) => { 
+        let styleClass = "trainZigZag";
+        if (Object.hasOwn(row,'styleclass') && row['styleclass'].length > 0 ) styleClass = row['styleclass'];
+        addLineToSvg(context, 
+        row['departhrs'], stations[row['from']],
+        row['arrivehrs'], stations[row['to']],
+        styleClass  );
+        addTextToSvg(context, row['departhrs'], stations[row['from']]+0.05, row['depart'], 'tinyLabelRotate90');
+        addTextToSvg(context, row['arrivehrs'], stations[row['to']]-0.35, row['arrive'], 'tinyLabelRotate90');
+     } )
 
 }
 
-async function loadAndRenderZigZag(stationsFileElement, timeTableFileElement) {
+async function loadAndRenderZigZag(timeTableFileElement) {
     const stationsFileInput = document.getElementById(stationsFileElement);
     const stationsFile = stationsFileInput.files[0];
     const timeTableFileInput = document.getElementById(timeTableFileElement);
@@ -101,35 +116,71 @@ async function loadAndRenderZigZag(stationsFileElement, timeTableFileElement) {
     renderZigZag(timetable, stations);
 }
 
+function convertToFractionalHours(str)
+{
+    let minutes, hours;
+    let sep = str.indexOf(':')
+    if (sep > 0)
+    {
+        hours = str.substring(0,sep);
+        minutes = str.substring(sep+1);
+    } else
+    {
+        minutes = str %100;
+        hours = Math.floor(str / 100);
+    }
+    return hours + (minutes/60);
+}
+
 function parseTimetableTable(contentParent) {
-    let timetable = {};
-    let stations = {};
+    let requiredColumns = ['from','to','depart','arrive'];
+    let timetable = [];
+    let errorMsgs = new Array();
+    let validsofar = true;
     // validate that we have a table
     let tb = contentParent.querySelector('table');
     if (null == tb)
-    { 
-        window.alert("Please paste a table (as HTML)");
-        return [null, null];
-    }
+        errorMsgs.push("Expected a table to be pasted.");
     // validate table column names in first row (assuming it's <td> not <th> )
     let toprow = tb.querySelector('tr');
     let headings = [];
-    toprow.querySelectorAll('td').forEach( (el) => headings.push(el.innerText) );
-    console.log(headings);
-
+    let headercells = toprow.querySelectorAll('td');
+    headercells.forEach( (el) => headings.push(el.innerText.toLowerCase().trim()) );
+    let numcolumns = headings.length;
+    requiredColumns.forEach( (req) => { if (!headings.includes(req)) { validsofar = false; errorMsgs.push("Expected column heading: "+req) } } );
+    let tablerows = tb.querySelectorAll('tr');
+    for (let rn= 1; rn < tablerows.length; rn++ ) {
+        tr = tablerows[rn];
+        let fields = {};
+        let cells = tr.querySelectorAll('td');
+        if (cells.length != numcolumns)
+            errorMsgs.push("Expected "+numcolumns+" columns in each row.")
+        for (let col=0;  col < cells.length; col++ )
+        {
+            fields[headings[col]] = cells[col].textContent;
+        }
+        // Calculate fractional hours
+        fields['departhrs'] = convertToFractionalHours(fields['depart']);
+        fields['arrivehrs'] = convertToFractionalHours(fields['arrive']);
+        timetable.push(fields);
+    };
+    if (errorMsgs.length > 0) console.log(errorMsgs);
+    console.log(timetable);
     // check if times are in decimal minutes e.g. 2359 or time format e.g. 23:59
-    // import rows, creating stations in the order we find them. 
-    return [timetable, stations];
+    if (errorMsgs.length == 0)
+        return timetable;
+    window.alert(errorMsgs.join('\n'));
+    return null;
 }
 
 function gotClipboardString(str) {
     contentParent.innerHTML = str;
     // parse HTML table in to stations, timetable objects
-    let timetable, stations;
-    [timetable, stations] = parseTimetableTable(contentParent);
+    let timetable;
+    timetable = parseTimetableTable(contentParent);
     if (undefined != timetable) 
-        renderZigZag(timetable, stations);
-
+    {   renderZigZag(timetable);
+    }
 }
 
 async function clipboardClickHandler(evt) {
@@ -147,11 +198,8 @@ async function clipboardClickHandler(evt) {
         {   contentParent.innerText = "Only paste text/html of a table from a spreadsheet";
             return -1;
         }
-        console.log(cbItem);
         let blob = await cbItem.getType('text/html');
-        console.log(blob);
         let arrbuff = await blob.arrayBuffer();
-        console.log(arrbuff);
         let decoder = new TextDecoder('utf-8');
         let str = decoder.decode(arrbuff);
         gotClipboardString(str);
@@ -160,9 +208,6 @@ async function clipboardClickHandler(evt) {
 
 function clipboardPasteEventHandler(evt)
 { 
-    console.log(evt);
-    console.log(evt.clipboardData);
-    console.log(evt.clipboardData.items);
     gcbData = evt.clipboardData;
     for (let item of evt.clipboardData.items)
     {
@@ -170,7 +215,6 @@ function clipboardPasteEventHandler(evt)
         {
             let str = item.getAsString( (str) => gotClipboardString(str) );
         }
-        console.log(item);
     }
     return 0;
 }

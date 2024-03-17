@@ -3,34 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    @media print
+    {
+        .noprint { display: none; }
+    }
+</style>
 <script src="zigzagdiagram.js" ></script>
 <title>Train timetable</title>
 </head>
 <body onpaste="clipboardPasteEventHandler(event);">
 <h1>Train Timetable</h1>
-<div id="fileImports" style="display:none">
+<div id="fileImports" class="noprint" >
     Stations: <input type="file" id="stationsFileInput" /> <br>
     Timetable: <input type="file" id="timetableFileInput" /> <br>
-    <button onclick="loadAndRenderZigZag('stationsFileInput','timetableFileInput')">Load CSV files</button> <br>
+    <button onclick="loadAndRenderZigZag('timetableFileInput')">Load CSV files</button> <br>
 </div>
-<div id="clipboardPaste" style="display:inline-block;">
+<div id="clipboardPaste" class="noprint">
     <button onclick="clipboardClickHandler(event)">Paste timetable from spreadsheet</button> <br>
-    <div id="contentParent" style="border: solid #aaaaaa; margin:4px;">(paste here)</div>
 </div>
 
 <hr>
-<svg width="1280" height="460" id="zigzag-svg">
+<svg width="900" height="500" id="zigzag-svg">
     <style>
         /* CSS styling for the lines */
         .trainZigZag { stroke: green; stroke-width: 2; }
         .stationLine { stroke: lightblue; stroke-width: 2; }
-        .stationLabel { font-family: Calibri, 'Trebuchet MS', sans-serif;  font-size: 18px; fill: cornflowerblue;}
+        .stationLabel { font-family: Calibri, 'Trebuchet MS', sans-serif;  font-size: 24px; fill: blue;}
         .hourLine { stroke: lightblue; stroke-width: 2; }
         .thinHourLine { stroke: #cceeff; stroke-width: 1; }
-        .hourLabel { font-family: Calibri, 'Trebuchet MS', sans-serif;  font-size: 18px; fill: cornflowerblue;}
+        .hourLabel { font-family: Calibri, 'Trebuchet MS', sans-serif;  font-size: 18px; fill: blue;}
+        .important { stroke-width: 3; stroke: red; }
+        .minor { stroke: grey; stroke-width: 2; }
+        .smallLabel {  font-family: Calibri, 'Trebuchet MS', sans-serif; fill: grey; font-size: 18pt; text-align: right; }
+        .tinyLabelRotate90 {writing-mode: vertical-lr; font-size: 8px;}
       </style>    
       <!-- Content will be added by JavaScript -->
 </svg>
+<br>
+<div id="contentParent" class="noprint" style="border: solid 1px #aaaaaa; margin:4px;">(paste here)</div>
 
 </body>
 </html>
