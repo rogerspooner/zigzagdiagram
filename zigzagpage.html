@@ -13,12 +13,7 @@
 <title>Train timetable</title>
 </head>
 <body onpaste="clipboardPasteEventHandler(event);">
-<h1>Train Timetable</h1>
-<div id="fileImports" class="noprint" >
-    Stations: <input type="file" id="stationsFileInput" /> <br>
-    Timetable: <input type="file" id="timetableFileInput" /> <br>
-    <button onclick="loadAndRenderZigZag('timetableFileInput')">Load CSV files</button> <br>
-</div>
+<h1>Graphical Train Timetable</h1>
 <div id="clipboardPaste" class="noprint">
     <button onclick="clipboardClickHandler(event)">Paste timetable from spreadsheet</button> <br>
 </div>
@@ -29,14 +24,20 @@
         /* CSS styling for the lines */
         .trainZigZag { stroke: green; stroke-width: 2; }
         .stationLine { stroke: lightblue; stroke-width: 2; }
-        .stationLabel { font-family: Calibri, 'Trebuchet MS', sans-serif;  font-size: 24px; fill: blue;}
+        .stationLabel { font-family: serif;  
+            font-size: 24px; fill: blue; }
         .hourLine { stroke: lightblue; stroke-width: 2; }
         .thinHourLine { stroke: #cceeff; stroke-width: 1; }
-        .hourLabel { font-family: Calibri, 'Trebuchet MS', sans-serif;  font-size: 18px; fill: blue;}
+        .hourLabel { font-family: serif;  font-size: 18px; fill: blue;}
         .important { stroke-width: 3; stroke: red; }
-        .minor { stroke: grey; stroke-width: 2; }
-        .smallLabel {  font-family: Calibri, 'Trebuchet MS', sans-serif; fill: grey; font-size: 18pt; text-align: right; }
-        .tinyLabelRotate90 {writing-mode: vertical-lr; font-size: 8px;}
+        .minor { stroke: lightgrey; stroke-width: 2; }
+        .smallLabel {  font-family: Calibri, 'Trebuchet MS', serif; 
+            fill: grey; font-size: 12pt; text-anchor: end; }
+        .tinyLabelRotate90 {writing-mode: vertical-lr; font-size: 6px;}
+        .nightTrain { stroke: blue; stroke-width: 2; }
+        .routeA {stroke: orange; stroke-width: 2; }
+        .routeB {stroke: hotpink; stroke-width: 2; }
+        .routeC {stroke: lightgreen; stroke-width: 2; }
       </style>    
       <!-- Content will be added by JavaScript -->
 </svg>

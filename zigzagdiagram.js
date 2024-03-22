@@ -59,8 +59,6 @@ function addTextToSvg(context, x, y, label, className) {
 
 function renderZigZag(timetable) {
     let context = {};
-    context.xscale = 25;
-    context.yscale = 50;
     // Create stations
     let stations = {};
     timetable.forEach( (row) => {
@@ -71,31 +69,39 @@ function renderZigZag(timetable) {
         {   stations[row['to']] = Object.keys(stations).length+1;
         }
     } );
+    context.xscale = 25;
+    context.yscale = 500 / (Object.keys(stations).length+1);
     context.svgContainer = document.getElementById('zigzag-svg');
-    for (let hr = 0; hr  <= 32; hr += 1 ) {
+    for (let hr = 0; hr  <= 34; hr += 1 ) {
         addLineToSvg(context, hr, 0, hr, 900, 'thinHourLine');
     }
-    for (let hr = 0; hr  <= 32; hr += 3 ) {
+    for (let hr = 0; hr  <= 33; hr += 3 ) {
         addLineToSvg(context, hr, 0, hr, 900, 'hourLine');
         addTextToSvg(context, hr+0.1, 0.3, hr%24+'h', 'hourLabel');
     }
 
     Object.keys(stations).forEach( (name) => { addLineToSvg( context, 0, stations[name], 
-        32, stations[name], 'stationLine') } );
+        34, stations[name], 'stationLine') } );
     Object.keys(stations).forEach( (name) => addTextToSvg( context, 0, stations[name], 
         name, 'stationLabel'));
-    Object.keys(stations).forEach( (name) => addTextToSvg( context, 27, stations[name], 
+    Object.keys(stations).forEach( (name) => addTextToSvg( context, 33, stations[name], 
             name, 'smallLabel'));
-    
+    hrFormatter = new Intl.NumberFormat('en-GB',
+        {   minimumIntegerDigits:4,
+            useGrouping: false
+        });
     timetable.forEach( (row) => { 
         let styleClass = "trainZigZag";
-        if (Object.hasOwn(row,'styleclass') && row['styleclass'].length > 0 ) styleClass = row['styleclass'];
+        if (Object.hasOwn(row,'styleclass') && row['styleclass'].length > 0 ) 
+            styleClass = row['styleclass'];
         addLineToSvg(context, 
-        row['departhrs'], stations[row['from']],
-        row['arrivehrs'], stations[row['to']],
-        styleClass  );
-        addTextToSvg(context, row['departhrs'], stations[row['from']]+0.05, row['depart'], 'tinyLabelRotate90');
-        addTextToSvg(context, row['arrivehrs'], stations[row['to']]-0.35, row['arrive'], 'tinyLabelRotate90');
+            row['departhrs'], stations[row['from']],
+            row['arrivehrs'], stations[row['to']],
+            styleClass  );
+        addTextToSvg(context, row['departhrs'], stations[row['from']]+0.05, 
+            hrFormatter.format(row['depart']%2400), 'tinyLabelRotate90');
+        addTextToSvg(context, row['arrivehrs'], stations[row['to']]-0.2, 
+            hrFormatter.format(row['arrive']%2400), 'tinyLabelRotate90');
      } )
 
 }
